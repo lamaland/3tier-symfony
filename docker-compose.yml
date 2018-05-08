@@ -1,0 +1,30 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  php:
+    container_name: php
+    image: php:7.2-fpm
+    restart: always
+
+  nginx:
+    container_name: nginx
+    image: automation/docker/nginx
+    restart: always
+    ports:
+      - 8081:8081
