@@ -1,29 +1,54 @@
 version: '3.1'
 
+networks:
+  front:
+    external:
+      name: ${FRONT_NETWORK}
+  back:
+    driver: bridge
+
 services:
 
-  mysql:
-    container_name: ${PROJECT_NAME}_mysql
+  db:
+    container_name: ${PROJECT_NAME}_db
     image: mysql:5.7
     environment:
       MYSQL_ROOT_PASSWORD: root
+    networks:
+      - back
 
   adminer:
     container_name: ${PROJECT_NAME}_adminer
     image: adminer
-    ports:
-      - 8080:8080
-      
+    networks:
+      - front
+      - back
+    labels:
+      traefik.enable: "true"
+      traefik.port: "8080"
+      traefik.frontend.rule: "Host:${PROJECT_NAME}-adminer.${APP_DOMAIN}"
+      traefik.docker.network: "${FRONT_NETWORK}"
+
   php:
     container_name: ${PROJECT_NAME}_php
     image: php:7.2-fpm
+    networks:
+      - back
 
   nginx:
     container_name: ${PROJECT_NAME}_nginx
     image: nginx
+    networks:
+      - front
+      - back
     volumes:
-      - ./automation/docker/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - ./public:/var/www/html/public
+      - ./automation/docker/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+      - ./public:/var/www/html/public:ro
     ports:
       - 8081:80
     command: /bin/bash -c "envsubst < /etc/nginx/conf.d/nginx.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    labels:
+      traefik.enable: "true"
+      traefik.port: "80"
+      traefik.frontend.rule: "Host:${PROJECT_NAME}.${APP_DOMAIN}"
+      traefik.docker.network: "${FRONT_NETWORK}"
