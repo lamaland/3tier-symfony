@@ -1,54 +1,59 @@
-version: '3.1'
+version: '3.3'
 
 networks:
-  front:
-    external:
-      name: ${FRONT_NETWORK}
-  back:
-    driver: bridge
+    front:
+        external:
+            name: ${FRONT_NETWORK}
+    back:
+        driver: bridge
 
 services:
 
-  db:
-    container_name: ${PROJECT_NAME}_db
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-    networks:
-      - back
+    nginx:
+        container_name: ${PROJECT_NAME}_nginx
+        image: nginx:latest
+        labels:
+            traefik.enable: "true"
+            traefik.port: "80"
+            traefik.frontend.rule: "Host:${PROJECT_NAME}.${APP_DOMAIN}"
+            traefik.docker.network: "${FRONT_NETWORK}"
+        depends_on:
+            - php
+        networks:
+            - front
+            - back
+        volumes:
+            - ./automation/docker/nginx/nginx.conf:/etc/nginx/conf.d/my.template
+            - .:/var/www/html
+        environment:
+            - PROJECT_NAME=${PROJECT_NAME}
+            - APP_DOMAIN=${APP_DOMAIN}
+        command: /bin/bash -c "envsubst '$$PROJECT_NAME $$APP_DOMAIN' < /etc/nginx/conf.d/my.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
 
-  adminer:
-    container_name: ${PROJECT_NAME}_adminer
-    image: adminer
-    networks:
-      - front
-      - back
-    labels:
-      traefik.enable: "true"
-      traefik.port: "8080"
-      traefik.frontend.rule: "Host:${PROJECT_NAME}-adminer.${APP_DOMAIN}"
-      traefik.docker.network: "${FRONT_NETWORK}"
+    php:
+        container_name: ${PROJECT_NAME}_php
+        image: php:7.2-fpm
+        networks:
+            - back
+        volumes:
+            - .:/var/www/html:cached
 
-  php:
-    container_name: ${PROJECT_NAME}_php
-    image: php:7.2-fpm
-    networks:
-      - back
+    db:
+        container_name: ${PROJECT_NAME}_db
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+        networks:
+            - back
 
-  nginx:
-    container_name: ${PROJECT_NAME}_nginx
-    image: nginx
-    networks:
-      - front
-      - back
-    volumes:
-      - ./automation/docker/nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
-      - ./public:/var/www/html/public:ro
-    ports:
-      - 8081:80
-    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/nginx.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
-    labels:
-      traefik.enable: "true"
-      traefik.port: "80"
-      traefik.frontend.rule: "Host:${PROJECT_NAME}.${APP_DOMAIN}"
-      traefik.docker.network: "${FRONT_NETWORK}"
+    adminer:
+        container_name: ${PROJECT_NAME}_adminer
+        image: adminer
+        networks:
+            - front
+            - back
+        labels:
+            traefik.enable: "true"
+            traefik.port: "8080"
+            traefik.frontend.rule: "Host:${PROJECT_NAME}-adminer.${APP_DOMAIN}"
+            traefik.docker.network: "${FRONT_NETWORK}"
