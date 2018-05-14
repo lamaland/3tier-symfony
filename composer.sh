@@ -1,3 +1,5 @@
+#!/bin/bash
+
 docker run --rm \
     --user $(id -u):$(id -g) \
     --volume $PWD:/app \
