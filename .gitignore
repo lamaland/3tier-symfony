@@ -1,10 +1,2 @@
 /vendor
 /var
-
-/bin
-/config
-/src
-composer.json
-composer.lock
-symfony.lock
-/templates
