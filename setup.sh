@@ -17,5 +17,5 @@ elif [ $OS_NAME == 'mac' ]; then
     sudo dseditgroup -o edit -a $(id -un) -t user $(id -gn 1000)
 fi
 
-docker-compose down
+docker-compose build
 docker-compose up -d
