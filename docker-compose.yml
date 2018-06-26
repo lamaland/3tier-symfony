@@ -32,7 +32,7 @@ services:
 
     php:
         container_name: ${PROJECT_NAME}_php
-        image: php:7.2-fpm
+        build: ./automation/docker/php-fpm
         networks:
             - back
         volumes:
@@ -43,6 +43,9 @@ services:
         image: mysql:5.7
         environment:
             MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         networks:
             - back
 
@@ -55,5 +58,5 @@ services:
         labels:
             traefik.enable: "true"
             traefik.port: "8080"
-            traefik.frontend.rule: "Host:${PROJECT_NAME}-adminer.${APP_DOMAIN}"
+            traefik.frontend.rule: "Host:adminer.${PROJECT_NAME}.${APP_DOMAIN}"
             traefik.docker.network: "${FRONT_NETWORK}"
