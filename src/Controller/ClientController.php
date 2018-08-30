@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
-use App\Tier\BLL\ClientBLL;
-use App\Tier\BO\ClientBO;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Tier\BLL\ClientBLL;
+use App\Tier\BO\ClientBO;
 
 class ClientController
 {
@@ -20,12 +21,21 @@ class ClientController
     }
 
     /**
-     * @Route('')
+     * @Route(path="/clients", methods={"POST"})
      */
-    public function createClient(Request $request)
+    public function createClient(Request $request) : JsonResponse
     {
         $client = $serializer->deserialize($request,ClientBO::class,'json');
         $client = $this->clientBLL->create($client);
-        return new JsonResponse($serializer->serialize($client,'json'));
+        return new JsonResponse($serializer->serialize($client,'json'),201);
+    }
+
+    /**
+     * @Route(path="/clients/{id}", methods={"GET"})
+     */
+    public function getClient(Request $request) : JsonResponse
+    {
+        $client = $this->clientBLL->get($client);
+        return new JsonResponse($serializer->serialize($client,'json'),200);
     }
 }
