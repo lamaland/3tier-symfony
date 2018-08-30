@@ -16,7 +16,7 @@ class ClientBLL
 
     public function create(ClientBO $client) : ClientBO
     {
-        $this->create($client);
+        $this->validate($client);
 
         ClientDAL::create($client);
 
