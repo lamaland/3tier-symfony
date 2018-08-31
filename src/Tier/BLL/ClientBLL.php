@@ -25,4 +25,14 @@ class ClientBLL
             InvoiceDAL::create($invoice);
         }
     }
+
+    public function get(int $id) : ClientBO
+    {
+        $invoiceBLL = new InvoiceBLL();
+
+        $client = ClientDAL::get($id);
+        $client->invoices = $invoiceBLL->getByIdClient($client->id);
+
+        return $client;
+    }
 }

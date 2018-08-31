@@ -3,6 +3,7 @@
 namespace App\Tier\BLL;
 
 use App\Tier\BO\InvoiceBO;
+use App\Tier\DAL\InvoiceDAL;
 
 class InvoiceBLL
 {
@@ -15,5 +16,15 @@ class InvoiceBLL
     {
         $this->validate($invoice);
         InvoiceDAL::create($invoice);
+    }
+
+    public function get($id) : InvoiceBO
+    {
+        return InvoiceDAL::get($id);
+    }
+
+    public function getByIdClient($idClient) : array
+    {
+        return InvoiceDAL::getByIdClient($idClient);
     }
 }
