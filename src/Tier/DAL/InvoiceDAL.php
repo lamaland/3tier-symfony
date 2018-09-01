@@ -4,43 +4,48 @@ namespace App\Tier\DAL;
 
 use App\Tier\BO\InvoiceBO;
 
-class InvoiceDAL
+class InvoiceDAL extends DAL
 {
-    private static function sourceToBO($source) : InvoiceBO
-    {
-        $invoice = new InvoiceBO();
-
-        $invoice->idClient  = $source['idClient'];
-        $invoice->date      = $source['date'];
-        $invoice->quantity  = $source['quantity'];
-
-        return $invoice;
-    }
+    private static $tableName = 'invoice';
+    private static $columns = [
+        'idClient',
+        'date',
+        'quantity'
+    ];
 
     public static function create(InvoiceBO $invoice) : InvoiceBO
     {
-        // Do the db job here to persist data on base ... whatever
-        $invoice->id = 1;
-        return $invoice;
+        return self::insert(self::$tableName,$invoice,self::$columns);
     }
 
-    public static function get(int $id) : InvoiceBO
+    public static function getById(int $id) : InvoiceBO
     {
-        // Do the db job here to get data from base ... whatever
-        self::sourceToBO($source);
+        $query = self::getConnection()->createQueryBuilder()
+                 ->select('*')
+                 ->from(self::$tableName)
+                 ->where('id = :id')
+                 ->setParameter('id',$id)
+                 ->execute();
 
-        return new InvoiceBO();
+        self::handleZeroResults($stmt, 'Invoice id='.$id.' not found.');
+
+        return self::sourceToBO($stmt->fetch(),self::$columns,new InvoiceBO());
     }
 
     public static function getByIdClient(int $idClient) : array
     {
+        $query = self::getConnection()->createQueryBuilder()
+                 ->select('*')
+                 ->from(self::$tableName)
+                 ->where('idClient = :idClient')
+                 ->setParameter('idClient',$idClient)
+                 ->execute();
+        
         $invoices = [];
+        while ($source = $query->fetch()) {
+            $invoices[] = self::sourceToBO($source,self::$columns,new InvoiceBO());
+        }
 
-        // Do the db job here to get data from base ... whatever
-        foreach ($sourceArray as $source) {
-            $invoices = self::sourceToBO($source);
-        }        
-
-        return new InvoiceBO();
+        return $invoices;
     }
 }

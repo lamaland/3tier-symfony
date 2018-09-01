@@ -5,6 +5,7 @@ namespace App\Tier\BLL;
 use App\Tier\BO\ClientBO;
 use App\Tier\DAL\ClientDAL;
 use App\Tier\BLL\InvoiceBLL;
+use App\Tier\DAL\InvoiceDAL;
 
 class ClientBLL
 {
@@ -20,21 +21,21 @@ class ClientBLL
 
         ClientDAL::create($client);
 
-        $invoiceBLL = new InvoiceBLL();
+        // $invoiceBLL = new InvoiceBLL();
 
-        foreach ($client->invoices as $invoice)
-        {
-            $invoiceBLL->create($invoice);
-        }
+        // foreach ($client->invoices as $invoice)
+        // {
+        //     $invoiceBLL->create($invoice);
+        // }
 
         return $client;
     }
 
-    public function get(int $id) : ClientBO
+    public function getById(int $id) : ClientBO
     {
         $invoiceBLL = new InvoiceBLL();
 
-        $client = ClientDAL::get($id);
+        $client = ClientDAL::getById($id);
         $client->invoices = $invoiceBLL->getByIdClient($client->id);
 
         return $client;

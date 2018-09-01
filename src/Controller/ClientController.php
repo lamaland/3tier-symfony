@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Tier\BLL\ClientBLL;
 use App\Tier\BO\ClientBO;
+use App\Tier\BLL\InvoiceBLL;
 
 class ClientController extends BaseController
 {
@@ -40,12 +41,26 @@ class ClientController extends BaseController
     public function getClient($id) : Response
     {
         try {
-            $client = $this->clientBLL->get($id);
+            $client = $this->clientBLL->getById($id);
         } catch(\Exception $exception) {
             return $this->response($exception);
         }
 
         return $this->response($client, 200);
+    }
+
+    /** @Route(path="/clients/{id}/invoices", methods={"GET"}) */
+    public function getClientInvoices($id) : Response
+    {
+        $invoiceBLL = new InvoiceBLL();
+
+        try {
+            $invoices = $invoiceBLL->getByIdClient($id);
+        } catch(\Exception $exception) {
+            return $this->response($exception);
+        }
+
+        return $this->response($invoices, 200);
     }
 
     private function deserialize(Request $request, string $format='json') : ClientBO

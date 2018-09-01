@@ -4,30 +4,31 @@ namespace App\Tier\DAL;
 
 use App\Tier\BO\ClientBO;
 
-class ClientDAL
+class ClientDAL extends DAL
 {
-    private static function sourceToBO($source) : ClientBO
-    {
-        $client = new ClientBO();
-
-        $client->firstName  = $source['firstName'];
-        $client->lastName   = $source['lastName'];
-
-        return $client;
-    }
+    private static $tableName = 'client';
+    private static $columns = [
+        'firstName',
+        'lastName',
+        'city'
+    ];
 
     public static function create(ClientBO $client) : ClientBO
     {
-        // Do the db job here to persist data on base ... whatever
-        $client->id = 1;
-        return $client;
+        return self::insert(self::$tableName, $client, self::$columns);
     }
 
-    public static function get(int $id) : ClientBO
+    public static function getById(int $id) : ClientBO
     {
-        // Do the db job here to get data from base ... whatever
-        self::sourceToBO($source);
+        $query = self::getConnection()->createQueryBuilder()
+                 ->select('*')
+                 ->from(self::$tableName)
+                 ->where('id = :id')
+                 ->setParameter('id',$id)
+                 ->execute();
 
-        return new ClientBO();
+        self::handleZeroResults($query, 'Client id='.$id.' not found.');
+
+        return self::sourceToBO($query->fetch(),self::$columns,new ClientBO());
     }
 }

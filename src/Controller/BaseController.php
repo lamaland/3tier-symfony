@@ -20,17 +20,23 @@ class BaseController extends AbstractController
         return $this->serializer->serialize($client, $format);
     }
 
-    protected function response($message, int $status=200, string $contentType='application/json')
+    protected function response($response, int $status=200, string $contentType='application/json')
     {
-        if ($message instanceOf \Exception)
+        if ($response instanceOf \Exception)
         {
+            $code       = $response->getCode();
+            $message    = $response->getMessage();
+            $stackTrace = explode('#',$response->getTraceAsString());
+
+            if ($code == 0) { $code = 500; }
+
             return new Response(json_encode([
-                'message' => $message->getMessage(),
-                'appCode' => $message->getCode(),
-                'stackTrace' => explode('#',$message->getTraceAsString())
-            ]), (int) $message->getCode(), ['Content-type' => $contentType]);
+                'message' => $message,
+                'code' => $code,
+                'stackTrace' => $stackTrace
+            ]), (int) $code, ['Content-type' => 'application/json']);
         }
 
-        return new Response($this->serialize($message), $status, ['Content-type' => $contentType]);
+        return new Response($this->serialize($response), $status, ['Content-type' => $contentType]);
     }
 }

@@ -18,9 +18,9 @@ class InvoiceBLL
         return InvoiceDAL::create($invoice);
     }
 
-    public function get($id) : InvoiceBO
+    public function getById($id) : InvoiceBO
     {
-        return InvoiceDAL::get($id);
+        return InvoiceDAL::getById($id);
     }
 
     public function getByIdClient($idClient) : array
