@@ -20,6 +20,7 @@ class InvoiceDAL
     public static function create(InvoiceBO $invoice) : InvoiceBO
     {
         // Do the db job here to persist data on base ... whatever
+        $invoice->id = 1;
         return $invoice;
     }
 

@@ -9,7 +9,7 @@ class ClientBO
     /** @var int $id */                 public $id;
     /** @var string $firstName */       public $firstName;
     /** @var string $lastName */        public $lastName;
-    /** @var BO_Invoice[] $invoices */  public $invoices;
+    /** @var InvoiceBO[] $invoices */   public $invoices;
 
     public function getDisplayName()
     {

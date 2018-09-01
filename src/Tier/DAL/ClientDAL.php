@@ -19,6 +19,7 @@ class ClientDAL
     public static function create(ClientBO $client) : ClientBO
     {
         // Do the db job here to persist data on base ... whatever
+        $client->id = 1;
         return $client;
     }
 

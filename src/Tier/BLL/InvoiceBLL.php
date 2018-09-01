@@ -9,13 +9,13 @@ class InvoiceBLL
 {
     private function validate(InvoiceBO $invoice) : void
     {
-        if (0 >= $invoice->quantity) { throw new Exception('Quantity cannot be less or equal to zero'); }
+        if (0 >= $invoice->quantity) { throw new \Exception('Quantity cannot be less or equal to zero', 400); }
     }
 
     public function create(InvoiceBO $invoice) : InvoiceBO
     {
         $this->validate($invoice);
-        InvoiceDAL::create($invoice);
+        return InvoiceDAL::create($invoice);
     }
 
     public function get($id) : InvoiceBO

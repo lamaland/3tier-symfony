@@ -4,14 +4,14 @@ namespace App\Tier\BLL;
 
 use App\Tier\BO\ClientBO;
 use App\Tier\DAL\ClientDAL;
-use App\Tier\DAL\InvoiceDAL;
+use App\Tier\BLL\InvoiceBLL;
 
 class ClientBLL
 {
     private function validate(ClientBO $client) : void
     {
-        if ('' === $client->firstName)    { throw new \Exception('First name cannot be blank.'); }
-        if ('' === $client->lastName)     { throw new \Exception('Last name cannot be blank.'); }
+        if ('' === $client->firstName)    { throw new \Exception('First name cannot be blank.', 400); }
+        if ('' === $client->lastName)     { throw new \Exception('Last name cannot be blank.', 400); }
     }
 
     public function create(ClientBO $client) : ClientBO
@@ -20,10 +20,14 @@ class ClientBLL
 
         ClientDAL::create($client);
 
+        $invoiceBLL = new InvoiceBLL();
+
         foreach ($client->invoices as $invoice)
         {
-            InvoiceDAL::create($invoice);
+            $invoiceBLL->create($invoice);
         }
+
+        return $client;
     }
 
     public function get(int $id) : ClientBO
