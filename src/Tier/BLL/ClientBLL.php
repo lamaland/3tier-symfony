@@ -40,4 +40,10 @@ class ClientBLL
 
         return $client;
     }
+
+    public function getAll() : array
+    {
+        return ClientDAL::getAll();
+    }
+
 }

@@ -3,6 +3,7 @@
 namespace App\Tier\DAL;
 
 use App\Tier\BO\InvoiceBO;
+use Doctrine\DBAL\ParameterType;
 
 class InvoiceDAL extends DAL
 {
@@ -15,35 +16,23 @@ class InvoiceDAL extends DAL
 
     public static function create(InvoiceBO $invoice) : InvoiceBO
     {
-        return self::insert(self::$tableName,$invoice,self::$columns);
+        return self::insert(self::$tableName, $invoice, self::$columns);
     }
 
     public static function getById(int $id) : InvoiceBO
     {
-        $query = self::getConnection()->createQueryBuilder()
-                 ->select('*')
-                 ->from(self::$tableName)
-                 ->where('id = :id')
-                 ->setParameter('id',$id)
-                 ->execute();
+        $source = self::selectOne(self::$tableName, 'id', $id);
 
-        self::handleZeroResults($stmt, 'Invoice id='.$id.' not found.');
-
-        return self::sourceToBO($stmt->fetch(),self::$columns,new InvoiceBO());
+        return self::sourceToBO($source->fetch(), self::$columns, new InvoiceBO());
     }
 
     public static function getByIdClient(int $idClient) : array
     {
-        $query = self::getConnection()->createQueryBuilder()
-                 ->select('*')
-                 ->from(self::$tableName)
-                 ->where('idClient = :idClient')
-                 ->setParameter('idClient',$idClient)
-                 ->execute();
+        $source = self::selectMany(self::$tableName, 'idClient', $idClient);
         
         $invoices = [];
-        while ($source = $query->fetch()) {
-            $invoices[] = self::sourceToBO($source,self::$columns,new InvoiceBO());
+        while ($row = $source->fetch()) {
+            $invoices[] = self::sourceToBO($row, self::$columns, new InvoiceBO());
         }
 
         return $invoices;

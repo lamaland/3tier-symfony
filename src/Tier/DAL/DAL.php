@@ -16,6 +16,30 @@ class DAL
         }
     }
 
+    protected static function selectOne($table, $key, $value)
+    {
+        $query = self::getConnection()->createQueryBuilder()
+                 ->select('*')
+                 ->from($table)
+                 ->where($key.' = :key')
+                 ->setParameter('key',$value)
+                 ->execute();
+
+        self::handleZeroResults($query, $table.' '.$key.'='.$value.' not found.');
+
+        return $query;
+    }
+
+    protected static function selectMany($table, $key, $value)
+    {
+        return self::getConnection()->createQueryBuilder()
+               ->select('*')
+               ->from($table)
+               ->where($key.' = :key')
+               ->setParameter('key',$value)
+               ->execute();
+    }
+
     protected static function insert($table, $bo, $columns)
     {
         $conn = self::getConnection();
@@ -23,6 +47,7 @@ class DAL
                  ->insert($table)
                  ->values(self::BOToSource($columns, $bo))
                  ->execute();
+                 
         $bo->id = $conn->lastInsertId();
         
         return $bo;

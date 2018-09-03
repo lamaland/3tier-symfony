@@ -37,6 +37,18 @@ class ClientController extends BaseController
         return $this->response($client, 201);
     }
 
+    /** @Route(path="/clients", methods={"GET"}) */
+    public function getClients() : Response
+    {
+       try {
+            $client = $this->clientBLL->getAll();
+        } catch(\Exception $exception) {
+            return $this->response($exception);
+        }
+
+        return $this->response($client, 200);
+    }
+
     /** @Route(path="/clients/{id}", methods={"GET"}) */
     public function getClient($id) : Response
     {

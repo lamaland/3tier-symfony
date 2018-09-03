@@ -20,15 +20,25 @@ class ClientDAL extends DAL
 
     public static function getById(int $id) : ClientBO
     {
-        $query = self::getConnection()->createQueryBuilder()
-                 ->select('*')
-                 ->from(self::$tableName)
-                 ->where('id = :id')
-                 ->setParameter('id',$id)
+        $source = self::selectOne(self::$tableName, 'id', $id);
+
+        self::handleZeroResults($source, 'Client id='.$id.' not found.');
+
+        return self::sourceToBO($source->fetch(),self::$columns,new ClientBO());
+    }
+
+    public static function getAll() : array
+    {
+        $source = self::getConnection()->createQueryBuilder()
+                 ->select('*')->from(self::$tableName)
                  ->execute();
 
-        self::handleZeroResults($query, 'Client id='.$id.' not found.');
+        $clients = [];
+        while ($row = $source->fetch()) {
+            $clients[] = self::sourceToBO($row, self::$columns, new ClientBO());
+        }
 
-        return self::sourceToBO($query->fetch(),self::$columns,new ClientBO());
+        return $clients;
     }
+
 }
