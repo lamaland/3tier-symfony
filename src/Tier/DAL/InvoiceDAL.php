@@ -3,38 +3,34 @@
 namespace App\Tier\DAL;
 
 use App\Tier\BO\InvoiceBO;
-use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Connection;
 
-class InvoiceDAL extends DAL
+class InvoiceDAL
 {
-    private static $tableName = 'invoice';
-    private static $columns = [
-        'idClient',
-        'date',
-        'quantity'
-    ];
+    private $helper;
 
-    public static function create(InvoiceBO $invoice) : InvoiceBO
+    public function __construct(Connection $connection)
     {
-        return self::insert(self::$tableName, $invoice, self::$columns);
+        $this->helper = new DataHelper(
+            InvoiceBO::class,
+            'invoice',
+            ['idClient','date','quantity'],
+            $connection
+        );
     }
 
-    public static function getById(int $id) : InvoiceBO
+    public function persist(InvoiceBO $invoice) : InvoiceBO
     {
-        $source = self::selectOne(self::$tableName, 'id', $id);
-
-        return self::sourceToBO($source->fetch(), self::$columns, new InvoiceBO());
+        return $this->helper->insert($invoice);
     }
 
-    public static function getByIdClient(int $idClient) : array
+    public function getById(int $id) : InvoiceBO
     {
-        $source = self::selectMany(self::$tableName, 'idClient', $idClient);
-        
-        $invoices = [];
-        while ($row = $source->fetch()) {
-            $invoices[] = self::sourceToBO($row, self::$columns, new InvoiceBO());
-        }
+        return $this->helper->selectOne($id);
+    }
 
-        return $invoices;
+    public function getByIdClient(int $idClient) : array
+    {
+        return $this->helper->selectBy('idClient', $idClient);
     }
 }

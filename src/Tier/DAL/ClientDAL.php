@@ -3,39 +3,45 @@
 namespace App\Tier\DAL;
 
 use App\Tier\BO\ClientBO;
+use Doctrine\DBAL\Connection;
 
-class ClientDAL extends DAL
+class ClientDAL
 {
-    private static $tableName = 'client';
-    private static $columns = [
-        'firstName',
-        'lastName',
-        'city'
-    ];
+    private $helper;
 
-    public static function create(ClientBO $client) : ClientBO
+    public function __construct(Connection $connection)
     {
-        return self::insert(self::$tableName, $client, self::$columns);
+        $this->helper = new DataHelper(
+            ClientBO::class,
+            'client',
+            ['firstName','lastName','city'],
+            $connection
+        );
     }
 
-    public static function getById(int $id) : ClientBO
+    public function persist(ClientBO $client) : ClientBO
     {
-        $source = self::selectOne(self::$tableName, 'id', $id);
-
-        self::handleZeroResults($source, 'Client id='.$id.' not found.');
-
-        return self::sourceToBO($source->fetch(),self::$columns,new ClientBO());
+        if (!$client->id >= 0) {
+            return $this->helper->insert($client);
+        } else {
+            return $this->helper->update($client);
+        }
     }
 
-    public static function getAll() : array
+    public function getById(int $id) : ClientBO
     {
-        $source = self::getConnection()->createQueryBuilder()
-                 ->select('*')->from(self::$tableName)
+        return $this->helper->selectOne($id);
+    }
+
+    public function getAll() : array
+    {
+        $source = $this->helper->createQueryBuilder()
+                 ->select('*')->from($this->helper->tableName)
                  ->execute();
 
         $clients = [];
         while ($row = $source->fetch()) {
-            $clients[] = self::sourceToBO($row, self::$columns, new ClientBO());
+            $clients[] = $this->helper->sourceToBO($row, new ClientBO());
         }
 
         return $clients;

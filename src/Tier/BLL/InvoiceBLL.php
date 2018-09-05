@@ -7,6 +7,13 @@ use App\Tier\DAL\InvoiceDAL;
 
 class InvoiceBLL
 {
+    private $invoiceDAL;
+
+    public function __construct(InvoiceDAL $invoiceDAL)
+    {
+        $this->invoiceDAL = $invoiceDAL;
+    }
+
     private function validate(InvoiceBO $invoice) : void
     {
         if (0 >= $invoice->quantity) { throw new \Exception('Quantity cannot be less or equal to zero', 400); }
@@ -15,16 +22,16 @@ class InvoiceBLL
     public function create(InvoiceBO $invoice) : InvoiceBO
     {
         $this->validate($invoice);
-        return InvoiceDAL::create($invoice);
+        return $this->invoiceDAL->create($invoice);
     }
 
     public function getById($id) : InvoiceBO
     {
-        return InvoiceDAL::getById($id);
+        return $this->invoiceDAL->getById($id);
     }
 
     public function getByIdClient($idClient) : array
     {
-        return InvoiceDAL::getByIdClient($idClient);
+        return $this->invoiceDAL->getByIdClient($idClient);
     }
 }

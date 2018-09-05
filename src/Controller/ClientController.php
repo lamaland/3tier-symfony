@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Controller\BaseController;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,12 +12,13 @@ use App\Tier\BLL\InvoiceBLL;
 
 class ClientController extends BaseController
 {
-    /** @var ClientBLL $clientBLL */
     private $clientBLL;
+    private $invoiceBLL;
 
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(SerializerInterface $serializer, ClientBLL $clientBLL, InvoiceBLL $invoiceBLL)
     {
-        $this->clientBLL = new ClientBLL();
+        $this->clientBLL = $clientBLL;
+        $this->invoiceBLL = $invoiceBLL;
         parent::__construct($serializer);
     }
 
@@ -64,10 +63,8 @@ class ClientController extends BaseController
     /** @Route(path="/clients/{id}/invoices", methods={"GET"}) */
     public function getClientInvoices($id) : Response
     {
-        $invoiceBLL = new InvoiceBLL();
-
         try {
-            $invoices = $invoiceBLL->getByIdClient($id);
+            $invoices = $this->invoiceBLL->getByIdClient($id);
         } catch(\Exception $exception) {
             return $this->response($exception);
         }
