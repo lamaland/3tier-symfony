@@ -11,21 +11,12 @@ class ClientDAL
 
     public function __construct(Connection $connection)
     {
-        $this->helper = new DataHelper(
-            ClientBO::class,
-            'client',
-            ['firstName','lastName','city'],
-            $connection
-        );
+        $this->helper = new DataHelper($connection, 'client', ClientBO::class);
     }
 
     public function persist(ClientBO $client) : ClientBO
     {
-        if (!$client->id >= 0) {
-            return $this->helper->insert($client);
-        } else {
-            return $this->helper->update($client);
-        }
+        return $this->helper->persist($client);
     }
 
     public function getById(int $id) : ClientBO
@@ -36,8 +27,9 @@ class ClientDAL
     public function getAll() : array
     {
         $source = $this->helper->createQueryBuilder()
-                 ->select('*')->from($this->helper->tableName)
-                 ->execute();
+                  ->select('*')
+                  ->from($this->helper->getTableName())
+                  ->execute();
 
         $clients = [];
         while ($row = $source->fetch()) {

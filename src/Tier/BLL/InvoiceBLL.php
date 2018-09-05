@@ -19,10 +19,10 @@ class InvoiceBLL
         if (0 >= $invoice->quantity) { throw new \Exception('Quantity cannot be less or equal to zero', 400); }
     }
 
-    public function create(InvoiceBO $invoice) : InvoiceBO
+    public function persist(InvoiceBO $invoice) : InvoiceBO
     {
         $this->validate($invoice);
-        return $this->invoiceDAL->create($invoice);
+        return $this->invoiceDAL->persist($invoice);
     }
 
     public function getById($id) : InvoiceBO

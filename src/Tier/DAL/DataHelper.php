@@ -9,15 +9,18 @@ class DataHelper
 {
     private $connection;
     private $BOClass;
-    public $tableName;
-    public $columns;
+    private $tableName;
 
-    public function __construct(string $BOClass, string $tableName, array $columns, Connection $connection)
+    public function __construct(Connection $connection, string $tableName, string $BOClass)
     {
-        $this->BOClass      = $BOClass;
         $this->connection   = $connection;
         $this->tableName    = $tableName;
-        $this->columns      = $columns;
+        $this->BOClass      = $BOClass;
+    }
+
+    public function getTableName() : string
+    {
+        return $this->tableName;
     }
 
     public function getConnection() : Connection
@@ -30,18 +33,24 @@ class DataHelper
         return $this->connection->createQueryBuilder();
     }
 
+    public function getColumns() : array
+    {
+        return $this->connection->getSchemaManager()
+                    ->listTableColumns($this->tableName);
+    }
+
     public function selectBy($key, $value)
     {
         $query = $this->connection->createQueryBuilder()
                ->select('*')
                ->from($this->tableName)
-               ->where($key.' = :key')
+               ->where("$key = :key")
                ->setParameter('key',$value)
                ->execute();
 
         $collection = [];
         while ($row = $query->fetch()) {
-            $invoices[] = $this->sourceToBO($row, new $this->BOClass());
+            $collection[] = $this->sourceToBO($row, new $this->BOClass());
         }
 
         return $collection;
@@ -49,21 +58,37 @@ class DataHelper
 
     public function selectOne($value)
     {
-        $query = $this->selectBy('id', $value);
+        $result = $this->selectBy('id', $value);
 
-        if (0 === $query->rowCount()) {
+        if (0 === count($result)) {
             throw new \Exception("$this->tableName id=$value not found",404);
         }
 
-        return $this->sourceToBO($query->fetch(), new $this->BOClass());
+        return $result[0];
+    }
+
+    public function persist($bo)
+    {
+        if (!$bo->id >= 0) {
+            return $this->insert($bo);
+        } else {
+            return $this->update($bo);
+        }
     }
 
     public function insert($bo)
     {
-        $this->connection->createQueryBuilder()
-             ->insert($this->tableName)
-             ->values(self::BOToSource($bo))
-             ->execute();
+        $query = $this->connection->createQueryBuilder()
+                      ->insert($this->tableName);
+
+        foreach($this->getColumns() as $column)
+        {
+            $columnName = $column->getName();
+            $query->setValue($columnName, ":$columnName")
+                  ->setParameter($columnName, $bo->{$columnName});
+        }
+
+        $query->execute();
 
         $bo->id = $this->connection->lastInsertId();
         
@@ -75,33 +100,25 @@ class DataHelper
         $query = $this->connection->createQueryBuilder()
                       ->update($this->tableName, 't')
                       ->where("id = :id")
-                      ->setParameter('id',$bo->id);
+                      ->setParameter('id', $bo->id);
 
-        foreach($this->columns as $column) {
-            $query->set("t.$column",":$column")
-                  ->setParameter($column,$bo->{$column});
+        foreach($this->getColumns() as $column)
+        {
+            $columnName = $column->getName();
+            $query->set("t.$columnName", ":$columnName")
+                  ->setParameter($columnName, $bo->{$columnName});
         }
 
-        $query->values(self::BOToSource($bo))
-              ->execute();
+        $query->execute();
 
         return $bo;
-    }
-
-    public function BOToSource($bo) : array
-    {
-        $values = [];
-        foreach($this->columns as $column) {
-            $values[$column] = $bo->{$column};
-        }
-        return $values;
     }
 
     public function sourceToBO($source, $bo)
     {
         $bo->id = $source['id'];
-        foreach($this->columns as $column) {
-            $bo->{$column} = $source[$column];
+        foreach($this->getColumns() as $column) {
+            $bo->{$column->getName()} = $source[$column->getName()];
         }
         return $bo;
     }

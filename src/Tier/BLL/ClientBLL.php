@@ -28,7 +28,8 @@ class ClientBLL
         $this->clientDAL->persist($client);
 
         foreach ($client->invoices as $invoice) {
-            $this->invoiceBLL->create($invoice);
+            $invoice->idClient = $client->id;
+            $this->invoiceBLL->persist($invoice);
         }
 
         return $client;

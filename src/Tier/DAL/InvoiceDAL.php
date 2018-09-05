@@ -11,17 +11,12 @@ class InvoiceDAL
 
     public function __construct(Connection $connection)
     {
-        $this->helper = new DataHelper(
-            InvoiceBO::class,
-            'invoice',
-            ['idClient','date','quantity'],
-            $connection
-        );
+        $this->helper = new DataHelper($connection, 'invoice', InvoiceBO::class);
     }
 
     public function persist(InvoiceBO $invoice) : InvoiceBO
     {
-        return $this->helper->insert($invoice);
+        return $this->helper->persist($invoice);
     }
 
     public function getById(int $id) : InvoiceBO
