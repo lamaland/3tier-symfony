@@ -35,8 +35,7 @@ class DataHelper
 
     public function getColumns() : array
     {
-        return $this->connection->getSchemaManager()
-                    ->listTableColumns($this->tableName);
+        return $this->connection->getSchemaManager()->listTableColumns($this->tableName);
     }
 
     public function selectBy($key, $value)
@@ -69,10 +68,10 @@ class DataHelper
 
     public function persist($bo)
     {
-        if (!$bo->id >= 0) {
-            return $this->insert($bo);
-        } else {
+        if ($bo->id > 0) {
             return $this->update($bo);
+        } else {
+            return $this->insert($bo);
         }
     }
 
