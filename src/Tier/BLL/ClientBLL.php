@@ -29,7 +29,7 @@ class ClientBLL
 
         foreach ($client->invoices as $invoice) {
             $invoice->idClient = $client->id;
-            $this->invoiceBLL->persist($invoice);
+            $this->invoiceBLL->create($invoice);
         }
 
         return $client;

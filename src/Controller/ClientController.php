@@ -22,7 +22,9 @@ class ClientController extends BaseController
         parent::__construct($serializer);
     }
 
-    /** @Route(path="/clients", methods={"POST"}) */
+    /**
+     * @Route(path="/clients", methods={"POST"})
+     */
     public function createClient(Request $request) : Response
     {
         $client = $this->deserialize($request);
@@ -36,7 +38,9 @@ class ClientController extends BaseController
         return $this->response($client, 201);
     }
 
-    /** @Route(path="/clients", methods={"GET"}) */
+    /**
+     * @Route(path="/clients", methods={"GET"})
+     */
     public function getClients() : Response
     {
        try {
@@ -48,7 +52,9 @@ class ClientController extends BaseController
         return $this->response($client, 200);
     }
 
-    /** @Route(path="/clients/{id}", methods={"GET"}) */
+    /**
+     * @Route(path="/clients/{id}", methods={"GET"})
+     */
     public function getClient($id) : Response
     {
         try {
@@ -60,7 +66,9 @@ class ClientController extends BaseController
         return $this->response($client, 200);
     }
 
-    /** @Route(path="/clients/{id}/invoices", methods={"GET"}) */
+    /**
+     * @Route(path="/clients/{id}/invoices", methods={"GET"})
+     */
     public function getClientInvoices($id) : Response
     {
         try {
