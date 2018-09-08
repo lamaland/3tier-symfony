@@ -7,13 +7,13 @@ use App\Adapter\ClientAdapterInterface;
 
 class ClientDomain
 {
-    private $clientAdapter;
     private $invoiceDomain;
+    private $clientAdapter;
 
-    public function __construct(ClientAdapterInterface $clientAdapter, InvoiceDomain $invoiceDomain)
+    public function __construct(InvoiceDomain $invoiceDomain, ClientAdapterInterface $clientAdapter)
     {
-        $this->clientAdapter = $clientAdapter;
         $this->invoiceDomain = $invoiceDomain;
+        $this->clientAdapter = $clientAdapter;
     }
 
     private function validate(Client $client) : void
@@ -26,10 +26,13 @@ class ClientDomain
     {
         $this->validate($client);
         $this->clientAdapter->persist($client);
-        foreach ($client->invoices as $invoice) {
+
+        foreach ($client->invoices as $invoice)
+        {
             $invoice->idClient = $client->id;
             $this->invoiceDomain->create($invoice);
         }
+
         return $client;
     }
 
@@ -37,16 +40,19 @@ class ClientDomain
     {
         $client = $this->clientAdapter->getById($id);
         $client->invoices = $this->invoiceDomain->getByIdClient($client->id);
+
         return $client;
     }
 
     public function getAll() : array
     {
         $clients = $this->clientAdapter->getAll();
-        foreach ($clients as $client) {
+
+        foreach ($clients as $client)
+        {
             $client->invoices = $this->invoiceDomain->getByIdClient($client->id);
         }
+
         return $clients;
     }
-
 }

@@ -11,39 +11,24 @@ use App\Domain\InvoiceDomain;
 
 class ClientController
 {
-    private $clientBLL;
-    private $invoiceBLL;
-    private $serializer;
-
-    public function __construct(ClientDomain $clientBLL, InvoiceDomain $invoiceBLL, SerializerInterface $serializer)
+    public function createClient(Request $request, ClientDomain $clientBLL, SerializerInterface $serializer)
     {
-        $this->clientBLL = $clientBLL;
-        $this->invoiceBLL = $invoiceBLL;
-        $this->serializer = $serializer;
+        $client = $serializer->deserialize($request->getContent(), Client::class, 'json');
+        return [201, $clientBLL->create($client)];
     }
 
-    public function createClient(Request $request)
+    public function getClients(ClientDomain $clientBLL)
     {
-        $client = $this->serializer->deserialize(
-            $request->getContent(),
-            Client::class,
-            'json'
-        );
-        return [201, $this->clientBLL->create($client)];
+        return [200, $clientBLL->getAll()];
     }
 
-    public function getClients()
+    public function getClient($id, ClientDomain $clientBLL)
     {
-        return [200, $this->clientBLL->getAll()];
+        return [200, $clientBLL->getById($id)];
     }
 
-    public function getClient($id)
+    public function getClientInvoices($id, InvoiceDomain $invoiceBLL)
     {
-        return [200, $this->clientBLL->getById($id)];
-    }
-
-    public function getClientInvoices($id)
-    {
-        return [200, $this->invoiceBLL->getByIdClient($id)];
+        return [200, $invoiceBLL->getByIdClient($id)];
     }
 }

@@ -7,6 +7,7 @@ use App\Adapter\InvoiceAdapterInterface;
 
 class InvoiceDomain
 {
+    const PRICE = 15.90;
     private $invoiceAdapter;
 
     public function __construct(InvoiceAdapterInterface $invoiceAdapter)
@@ -21,8 +22,16 @@ class InvoiceDomain
 
     public function create(Invoice $invoice) : Invoice
     {
+        $invoice->date = new \DateTime();
         $this->validate($invoice);
+        $this->calculateAmount($invoice);
         return $this->invoiceAdapter->persist($invoice);
+    }
+
+    private function calculateAmount(Invoice $invoice)
+    {
+        $invoice->price = self::PRICE;
+        $invoice->amount = $invoice->quantity * $invoice->price;
     }
 
     public function getById($id) : Invoice

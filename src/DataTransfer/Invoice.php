@@ -8,4 +8,6 @@ class Invoice
     /** @var int        */ public $idClient;
     /** @var \DateTime  */ public $date;
     /** @var int        */ public $quantity;
+    /** @var float      */ public $price;
+    /** @var float      */ public $amount;
 }

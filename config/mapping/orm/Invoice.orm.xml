@@ -3,7 +3,7 @@
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
                    https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
-    <entity name="App\Tier\BO\Invoice" table="invoice">
+    <entity name="App\DataTransfer\Invoice" table="invoice">
 
         <id name="id" type="integer" column="id">
             <generator strategy="AUTO"/>
@@ -14,8 +14,10 @@
             <join-column name="idClient" referenced-column-name="id" nullable="false"/>
         </many-to-one>
 
-        <field name="date" column="date" type="string" nullable="true"/>
+        <field name="date" column="date" type="datetime" nullable="true"/>
         <field name="quantity" column="quantity" type="integer" nullable="true"/>
+        <field name="price" column="price" type="float" nullable="true"/>
+        <field name="amount" column="amount" type="float" nullable="true"/>
 
     </entity>
 
