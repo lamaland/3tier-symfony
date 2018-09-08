@@ -1,25 +1,26 @@
 <?php
 
-namespace App\Tier\DAL;
+namespace App\Adapter\DBAL;
 
-use App\Tier\BO\ClientBO;
+use App\Adapter\ClientAdapterInterface;
+use App\DataTransfer\Client;
 use Doctrine\DBAL\Connection;
 
-class ClientDAL
+class ClientAdapterDBAL implements ClientAdapterInterface
 {
     private $helper;
 
     public function __construct(Connection $connection)
     {
-        $this->helper = new DataHelper($connection, 'client', ClientBO::class);
+        $this->helper = new DBALHelper($connection, 'client', Client::class);
     }
 
-    public function persist(ClientBO $client) : ClientBO
+    public function persist(Client $client) : Client
     {
         return $this->helper->persist($client);
     }
 
-    public function getById(int $id) : ClientBO
+    public function getById(int $id) : Client
     {
         return $this->helper->selectOne($id);
     }
@@ -33,7 +34,7 @@ class ClientDAL
 
         $clients = [];
         while ($row = $source->fetch()) {
-            $clients[] = $this->helper->sourceToBO($row, new ClientBO());
+            $clients[] = $this->helper->sourceToBO($row, new Client());
         }
 
         return $clients;

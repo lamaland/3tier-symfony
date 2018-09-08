@@ -1,25 +1,26 @@
 <?php
 
-namespace App\Tier\DAL;
+namespace App\Adapter\DBAL;
 
-use App\Tier\BO\InvoiceBO;
+use App\Adapter\InvoiceAdapterInterface;
+use App\DataTransfer\Invoice;
 use Doctrine\DBAL\Connection;
 
-class InvoiceDAL
+class InvoiceAdapterDBAL implements InvoiceAdapterInterface
 {
     private $helper;
 
     public function __construct(Connection $connection)
     {
-        $this->helper = new DataHelper($connection, 'invoice', InvoiceBO::class);
+        $this->helper = new \App\Adapter\DBAL\DBALHelper($connection, 'invoice', Invoice::class);
     }
 
-    public function persist(InvoiceBO $invoice) : InvoiceBO
+    public function persist(Invoice $invoice) : Invoice
     {
         return $this->helper->persist($invoice);
     }
 
-    public function getById(int $id) : InvoiceBO
+    public function getById(int $id) : Invoice
     {
         return $this->helper->selectOne($id);
     }

@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Tier\BO;
+namespace App\DataTransfer;
 
-use App\Tier\BO\InvoiceBO;
+use App\DataTransfer\Invoice;
 
-class ClientBO
+class Client
 {
     /** @var int            */ public $id;
     /** @var string         */ public $firstName;
     /** @var string         */ public $lastName;
     /** @var string         */ public $city;
-    /** @var InvoiceBO[]    */ public $invoices;
+    /** @var Invoice[]      */ public $invoices;
 
     public function getDisplayName()
     {
-        return implode(' ',[$this->firstName, $this->lastName]);
+        return "$this->firstName $this->lastName";
     }
 }

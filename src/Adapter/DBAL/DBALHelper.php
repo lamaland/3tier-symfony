@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Tier\DAL;
+namespace App\Adapter\DBAL;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 
-class DataHelper
+class DBALHelper
 {
     private $connection;
     private $BOClass;

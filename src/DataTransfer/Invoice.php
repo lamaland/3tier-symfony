@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tier\BO;
+namespace App\DataTransfer;
 
-class InvoiceBO
+class Invoice
 {
     /** @var int        */ public $id;
     /** @var int        */ public $idClient;
