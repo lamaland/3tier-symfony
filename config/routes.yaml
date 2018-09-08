@@ -1,3 +1,19 @@
-controllers:
-    resource: '../src/Controller/'
-    type: annotation
+get_client:
+  path: /clients/{id}
+  methods: GET
+  controller: App\Controller\ClientController::getClient
+
+get_clients:
+  path: /clients
+  methods: GET
+  controller: App\Controller\ClientController::getClients
+
+post_client:
+  path: /clients
+  methods: POST
+  controller: App\Controller\ClientController::createClient
+
+get_client_invoices:
+  path: /clients/{id}/invoices
+  methods: GET
+  controller: App\Controller\ClientController::getClientInvoices

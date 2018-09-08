@@ -4,63 +4,46 @@ namespace App\Controller;
 
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Domain\ClientDomain;
 use App\DataTransfer\Client;
 use App\Domain\InvoiceDomain;
 
-class ClientController extends BaseController
+class ClientController
 {
     private $clientBLL;
     private $invoiceBLL;
+    private $serializer;
 
-    public function __construct(SerializerInterface $serializer, ClientDomain $clientBLL, InvoiceDomain $invoiceBLL)
+    public function __construct(ClientDomain $clientBLL, InvoiceDomain $invoiceBLL, SerializerInterface $serializer)
     {
         $this->clientBLL = $clientBLL;
         $this->invoiceBLL = $invoiceBLL;
-        parent::__construct($serializer);
+        $this->serializer = $serializer;
     }
 
-    /**
-     * @Route(path="/clients", methods={"POST"})
-     */
-    public function createClient(Request $request) : Response
+    public function createClient(Request $request)
     {
-        $client = $this->deserialize($request);
-        $client = $this->clientBLL->create($client);
-        return $this->response($client, 201);
+        $client = $this->serializer->deserialize(
+            $request->getContent(),
+            Client::class,
+            'json'
+        );
+        return [201, $this->clientBLL->create($client)];
     }
 
-    /**
-     * @Route(path="/clients", methods={"GET"})
-     */
-    public function getClients() : Response
+    public function getClients()
     {
-        $client = $this->clientBLL->getAll();
-        return $this->response($client, 200);
+        return [200, $this->clientBLL->getAll()];
     }
 
-    /**
-     * @Route(path="/clients/{id}", methods={"GET"})
-     */
-    public function getClient($id) : Response
+    public function getClient($id)
     {
-        $client = $this->clientBLL->getById($id);
-        return $this->response($client, 200);
+        return [200, $this->clientBLL->getById($id)];
     }
 
-    /**
-     * @Route(path="/clients/{id}/invoices", methods={"GET"})
-     */
-    public function getClientInvoices($id) : Response
+    public function getClientInvoices($id)
     {
-        $invoices = $this->invoiceBLL->getByIdClient($id);
-        return $this->response($invoices, 200);
-    }
-
-    private function deserialize(Request $request, string $format='json') : Client
-    {
-        return $this->serializer->deserialize($request->getContent(), Client::class, $format);
+        return [200, $this->invoiceBLL->getByIdClient($id)];
     }
 }
