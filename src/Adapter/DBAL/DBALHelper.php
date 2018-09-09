@@ -8,14 +8,14 @@ use Doctrine\DBAL\Query\QueryBuilder;
 class DBALHelper
 {
     private $connection;
-    private $BOClass;
+    private $DTOClass;
     private $tableName;
 
-    public function __construct(Connection $connection, string $tableName, string $BOClass)
+    public function __construct(Connection $connection, string $tableName, string $DTOClass)
     {
         $this->connection   = $connection;
         $this->tableName    = $tableName;
-        $this->BOClass      = $BOClass;
+        $this->DTOClass      = $DTOClass;
     }
 
     public function getTableName() : string
@@ -49,7 +49,7 @@ class DBALHelper
 
         $collection = [];
         while ($row = $query->fetch()) {
-            $collection[] = $this->sourceToBO($row, new $this->BOClass());
+            $collection[] = $this->sourceToBO($row, new $this->DTOClass());
         }
 
         return $collection;
@@ -66,16 +66,16 @@ class DBALHelper
         return $result[0];
     }
 
-    public function persist($bo)
+    public function persist($dto)
     {
-        if ($bo->id > 0) {
-            return $this->update($bo);
+        if ($dto->id > 0) {
+            return $this->update($dto);
         } else {
-            return $this->insert($bo);
+            return $this->insert($dto);
         }
     }
 
-    public function insert($bo)
+    public function insert($dto)
     {
         $query = $this->connection->createQueryBuilder()
                       ->insert($this->tableName);
@@ -84,41 +84,41 @@ class DBALHelper
         {
             $columnName = $column->getName();
             $query->setValue($columnName, ":$columnName")
-                  ->setParameter($columnName, $bo->{$columnName});
+                  ->setParameter($columnName, $dto->{$columnName});
         }
 
         $query->execute();
 
-        $bo->id = $this->connection->lastInsertId();
+        $dto->id = $this->connection->lastInsertId();
         
-        return $bo;
+        return $dto;
     }
 
-    public function update($bo)
+    public function update($dto)
     {
         $query = $this->connection->createQueryBuilder()
                       ->update($this->tableName, 't')
                       ->where("id = :id")
-                      ->setParameter('id', $bo->id);
+                      ->setParameter('id', $dto->id);
 
         foreach($this->getColumns() as $column)
         {
             $columnName = $column->getName();
             $query->set("t.$columnName", ":$columnName")
-                  ->setParameter($columnName, $bo->{$columnName});
+                  ->setParameter($columnName, $dto->{$columnName});
         }
 
         $query->execute();
 
-        return $bo;
+        return $dto;
     }
 
-    public function sourceToBO($source, $bo)
+    public function sourceToDTO($source, $dto)
     {
-        $bo->id = $source['id'];
+        $dto->id = $source['id'];
         foreach($this->getColumns() as $column) {
-            $bo->{$column->getName()} = $source[$column->getName()];
+            $dto->{$column->getName()} = $source[$column->getName()];
         }
-        return $bo;
+        return $dto;
     }
 }

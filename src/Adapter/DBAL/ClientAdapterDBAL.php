@@ -34,7 +34,7 @@ class ClientAdapterDBAL implements ClientAdapterInterface
 
         $clients = [];
         while ($row = $source->fetch()) {
-            $clients[] = $this->helper->sourceToBO($row, new Client());
+            $clients[] = $this->helper->sourceToDTO($row, new Client());
         }
 
         return $clients;
