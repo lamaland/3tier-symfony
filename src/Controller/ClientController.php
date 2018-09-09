@@ -14,6 +14,7 @@ class ClientController
     public function createClient(Request $request, ClientDomain $clientBLL, SerializerInterface $serializer)
     {
         $client = $serializer->deserialize($request->getContent(), Client::class, 'json');
+        dump($client); die;
         return [201, $clientBLL->create($client)];
     }
 

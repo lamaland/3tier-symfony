@@ -1,3 +1,4 @@
+
 parameters:
     # Adds a fallback DATABASE_URL if the env var is not set.
     # This allows you to run cache:warmup even if your
@@ -16,12 +17,13 @@ doctrine:
             collate: utf8mb4_unicode_ci
 
         url: '%env(resolve:DATABASE_URL)%'
-    orm:
-        auto_generate_proxy_classes: '%kernel.debug%'
-        auto_mapping: true
-        mappings:
-            App:
-                is_bundle: false
-                type: xml
-                dir: '%kernel.project_dir%/config/mapping/orm'
-                prefix: 'App\DataTransfer'
+#    orm:
+#        auto_generate_proxy_classes: '%kernel.debug%'
+#        auto_mapping: true
+#        mappings:
+#            App:
+#                is_bundle: false
+#                type: xml
+#                dir: '%kernel.project_dir%/src/DataTransfer'
+#                prefix: 'App\DataTransfer'
+#                alias: App
