@@ -2,18 +2,22 @@
 
 namespace App\Domain;
 
+use App\Adapter\DomainTransactionInterface;
 use App\DataTransfer\Client;
 use App\Adapter\ClientAdapterInterface;
+use Doctrine\DBAL\Connection;
 
 class ClientDomain
 {
     private $invoiceDomain;
     private $clientAdapter;
+    private $transaction;
 
-    public function __construct(InvoiceDomain $invoiceDomain, ClientAdapterInterface $clientAdapter)
+    public function __construct(InvoiceDomain $invoiceDomain, ClientAdapterInterface $clientAdapter, DomainTransactionInterface $transaction)
     {
         $this->invoiceDomain = $invoiceDomain;
         $this->clientAdapter = $clientAdapter;
+        $this->transaction = $transaction;
     }
 
     private function validate(Client $client) : void
@@ -25,13 +29,18 @@ class ClientDomain
     public function create(Client $client) : Client
     {
         $this->validate($client);
-        $this->clientAdapter->persist($client);
 
-        foreach ($client->invoices as $invoice)
-        {
-            $invoice->idClient = $client->id;
-            $this->invoiceDomain->create($invoice);
-        }
+        $this->transaction->beginTransaction();
+
+            $this->clientAdapter->persist($client);
+
+            foreach ($client->invoices as $invoice)
+            {
+                $invoice->idClient = $client->id;
+                $this->invoiceDomain->create($invoice);
+            }
+
+        $this->transaction->commitTransaction();
 
         return $client;
     }
